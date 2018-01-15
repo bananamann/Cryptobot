@@ -1,0 +1,42 @@
+
+GENERAL
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+look at 72 hours' worth of history to determine fair price and direction of the coin
+
+look at buy and sell orders to determine competition/likelihood of order going through
+
+Look at Sum at goal sell price vs 24-hour volume and buy orders to determine if it can hit that price within a day
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+PROGRAM STRUCTURE
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Order Class
+Contains properties and methods for creating and modifying orders
+
+Notification Class
+Contains properties and methods for creating and modifying notifications
+
+Analyzer Module
+Does calculations based on market data gathered by the Requester to suggest which currencies to buy/sell and at what
+price
+
+Logger Class
+Contains properties and methods for creating and modifying logs based on transactions, notifications and price data
+
+Requester Module
+Submits API requests to pull market data, submit or cancel orders, log transactions, create and send notifications,
+keep track of changes and pass data off to the other classes
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+WORKFLOW
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+

@@ -2,7 +2,7 @@ require 'net/smtp'
 require 'net/http'
 require 'net/https'
 require 'base64'
-require 'http'
+require 'json'
 
 def test_send_email(to,opts={})
   opts[:server]      ||= 'localhost'
@@ -27,7 +27,13 @@ END_OF_MESSAGE
 end
 
 def test_get_trade_data
-  all_btc_markets = HTTP.get("https://www.cryptopia.co.nz/api/GetMarkets/BTC")
+  uri = URI.parse "https://www.cryptopia.co.nz/api/GetMarkets/BTC"
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  req = Net::HTTP::Get.new(uri.request_uri)
+  response = JSON.parse(http.request(req).body)
+
+  puts response
 end
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

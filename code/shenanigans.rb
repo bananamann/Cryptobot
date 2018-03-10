@@ -36,7 +36,7 @@ def test_top_mkts_by_vol
   @mkts_by_vol = response['Data'].sort_by {|h| h['BaseVolume']}.reverse
 
   @top_mkts = @mkts_by_vol[0..19]
-  @trade_pair_ids = @top_30_mkts.collect{|a|a['TradePairId']}
+  @trade_pair_ids = @top_mkts.collect{|a|a['TradePairId']}
 end
 
 def test_get_market_history(id)
@@ -55,7 +55,9 @@ def test_get_market_orders(id)
   response = JSON.parse(http.request(req).body)
 
   buy_orders = response['Data']['Buy']
+  puts buy_orders
   sell_orders = response['Data']['Sell']
+  puts sell_orders
 end
 
 def test_get_all_data

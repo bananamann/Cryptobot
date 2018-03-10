@@ -26,20 +26,52 @@ END_OF_MESSAGE
   end
 end
 
-def test_get_trade_data
+def test_top_mkts_by_vol
   uri = URI.parse "https://www.cryptopia.co.nz/api/GetMarkets/BTC"
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
   req = Net::HTTP::Get.new(uri.request_uri)
   response = JSON.parse(http.request(req).body)
 
-  puts response
+  @mkts_by_vol = response['Data'].sort_by {|h| h['BaseVolume']}.reverse
+
+  @top_mkts = @mkts_by_vol[0..19]
+  @trade_pair_ids = @top_30_mkts.collect{|a|a['TradePairId']}
+end
+
+def test_get_market_history(id)
+  uri = URI.parse "https://www.cryptopia.co.nz/api/GetMarketHistory/#{id}"
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  req = Net::HTTP::Get.new(uri.request_uri)
+  response = JSON.parse(http.request(req).body)
+end
+
+def test_get_market_orders(id)
+  uri = URI.parse "https://www.cryptopia.co.nz/api/GetMarketOrders/#{id}"
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  req = Net::HTTP::Get.new(uri.request_uri)
+  response = JSON.parse(http.request(req).body)
+
+  buy_orders = response['Data']['Buy']
+  sell_orders = response['Data']['Sell']
+end
+
+def test_get_all_data
+  test_top_mkts_by_vol
+
+  @trade_pair_ids.each do |id|
+    test_get_market_orders id
+    # test_get_market_history id
+  end
+
 end
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 # RUN TEST METHODS BELOW
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-test_get_trade_data
+test_get_all_data
 
 # test_send_email "6149050800@tmomail.net", :subject => "Placeholder", :body => "APPARENTLY IT NEEDS A FROM"

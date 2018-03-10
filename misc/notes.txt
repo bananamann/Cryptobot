@@ -1,16 +1,3 @@
-
-GENERAL
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-look at 72 hours' worth of history to determine fair price and direction of the coin
-
-look at buy and sell orders to determine competition/likelihood of order going through
-
-Look at Sum at goal sell price vs 24-hour volume and buy orders to determine if it can hit that price within a day
-
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-
 PROGRAM STRUCTURE
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

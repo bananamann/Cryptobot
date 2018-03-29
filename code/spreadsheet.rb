@@ -50,7 +50,9 @@ end
 # create empty doc up here
 empty_doc = Spreadsheet::Workbook.new
 history_data = []
-
+completed_orders = []
+completed_buys = []
+completed_sells = []
 
 # retrieve currency list
 currencies = get_top_mkts_by_vol 10
@@ -65,7 +67,7 @@ empty_doc.write '../output/empty_spreadsheet.xls'
 doc = Spreadsheet.open '../output/empty_spreadsheet.xls'
 
 # __ times, every __ minutes, retrieve and calculate relevant data and put it into the spreadsheet
-for i in 0...15
+for i in 0...10
   # retrieve/calculate all the data from cryptopia
   currencies.each_with_index do |c, j|
     id = currencies[j]['TradePairId']
@@ -75,7 +77,12 @@ for i in 0...15
     new_history_data = get_market_history id
     history_data += [new_history_data]
 
-    total_orders = i == 0 ? 'N/A' : (history_data[j + (currencies.size * i)] - history_data[j + (currencies.size * (i - 1))]).size
+    completed_orders = (history_data[j + (currencies.size * i)] - history_data[j + (currencies.size * (i - 1))]) unless i == 0
+
+    completed_buys = completed_orders.select{|a| a['Type'] == 'Buy'}.size
+    completed_sells = completed_orders.size - completed_buys
+
+    total_orders = i == 0 ? 'N/A' : completed_orders.size
 
     buy_orders = order_data['Buy']
     sell_orders = order_data['Sell']
@@ -89,14 +96,14 @@ for i in 0...15
 
   # write results to spreadsheet
     sheet = doc.worksheet j
-    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Order Buy/Sell Ratio', 'Completed Orders' if i == 0
+    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Order Buy/Sell Ratio', 'Completed Orders', 'Completed Buys', 'Completed Sells' if i == 0
     row = sheet.row(i + 1)
-    row.push price, buy_sum, sell_sum, buy_sell_ratio, total_orders
+    row.push price, buy_sum, sell_sum, buy_sell_ratio, total_orders, completed_buys, completed_sells
   end
 
   puts "cycle #{i + 1} complete"
 
   doc.write '../output/updated_spreadsheet.xls'
 
-  sleep 60
+  sleep 30
 end

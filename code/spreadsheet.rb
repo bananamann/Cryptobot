@@ -65,12 +65,12 @@ empty_doc.write '../output/empty_spreadsheet.xls'
 doc = Spreadsheet.open '../output/empty_spreadsheet.xls'
 
 # __ times, every __ minutes, retrieve and calculate relevant data and put it into the spreadsheet
-for i in 0...3
+for i in 0...15
   # retrieve/calculate all the data from cryptopia
   currencies.each_with_index do |c, j|
     id = currencies[j]['TradePairId']
 
-    market_data = currencies[j]
+    market_data = get_market_state id
     order_data = get_market_orders id
     new_history_data = get_market_history id
     history_data += [new_history_data]
@@ -98,5 +98,5 @@ for i in 0...3
 
   doc.write '../output/updated_spreadsheet.xls'
 
-  sleep 20
+  sleep 60
 end

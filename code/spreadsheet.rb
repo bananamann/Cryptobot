@@ -94,7 +94,7 @@ for i in 0...15
     row.push price, buy_sum, sell_sum, buy_sell_ratio, total_orders
   end
 
-  puts "cycle complete"
+  puts "cycle #{i + 1} complete"
 
   doc.write '../output/updated_spreadsheet.xls'
 

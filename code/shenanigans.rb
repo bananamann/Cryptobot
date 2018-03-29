@@ -65,7 +65,7 @@ def test_get_all_data
 
   @trade_pair_ids.each do |id|
     test_get_market_orders id
-    # test_get_market_history id
+    test_get_market_history id
   end
 
 end

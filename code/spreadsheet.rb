@@ -70,7 +70,7 @@ empty_doc.write '../output/empty_spreadsheet.xls'
 doc = Spreadsheet.open '../output/empty_spreadsheet.xls'
 
 # __ times, every __ minutes, retrieve and calculate relevant data and put it into the spreadsheet
-for i in 0...240
+for i in 0...840
   # retrieve/calculate all the data from cryptopia
   currencies.each_with_index do |c, j|
     id = currencies[j]['TradePairId']
@@ -96,7 +96,10 @@ for i in 0...240
     sell_sum = sell_orders.inject(0) {|sum, hash| sum + hash['Total']}
 
     buy_sell_ratio_open = (buy_sum / sell_sum).round(5)
-    buy_sell_ratio_completed = (completed_buys / completed_sells).round(5)
+    
+    if i != 0
+      buy_sell_ratio_completed = (completed_buys / completed_sells).round(5)
+    end
 
   # write results to spreadsheet
     sheet = doc.worksheet j

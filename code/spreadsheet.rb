@@ -40,9 +40,12 @@ def get_market_history(id)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
   req = Net::HTTP::Get.new(uri.request_uri)
-  response = JSON.parse(http.request(req).body)
-
-  response['Data']
+  begin
+    response = JSON.parse(http.request(req).body)
+    response['Data']
+  rescue Exception => e
+    get_market_history id
+  end
 end
 
 
@@ -92,13 +95,14 @@ for i in 0...240
     buy_sum = buy_orders.inject(0) {|sum, hash| sum + hash['Total']}
     sell_sum = sell_orders.inject(0) {|sum, hash| sum + hash['Total']}
 
-    buy_sell_ratio = (buy_sum / sell_sum).round(5)
+    buy_sell_ratio_open = (buy_sum / sell_sum).round(5)
+    buy_sell_ratio_completed = (completed_buys / completed_sells).round(5)
 
   # write results to spreadsheet
     sheet = doc.worksheet j
-    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Order Buy/Sell Ratio', 'Completed Orders', 'Completed Buys', 'Completed Sells' if i == 0
+    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Buy/Sell Ratio', 'Completed Buy/Sell Ratio' 'Completed Orders', 'Completed Buys', 'Completed Sells' if i == 0
     row = sheet.row(i + 1)
-    row.push price, buy_sum, sell_sum, buy_sell_ratio, total_orders, completed_buys, completed_sells
+    row.push price, buy_sum, sell_sum, buy_sell_ratio_open, buy_sell_ratio_completed, total_orders, completed_buys, completed_sells
   end
 
   puts "cycle #{i + 1} complete"

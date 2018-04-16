@@ -3,7 +3,7 @@ require 'net/smtp'
 require 'net/http'
 require 'net/https'
 require 'json'
-
+require 'colorize'
 
 def get_top_mkts_by_vol(num_results = 5)
   uri = URI.parse "https://www.cryptopia.co.nz/api/GetMarkets/BTC"
@@ -52,10 +52,10 @@ end
 
 # create empty doc up here
 empty_doc = Spreadsheet::Workbook.new
-history_data = []
-completed_orders = []
-completed_buys = []
-completed_sells = []
+@@history_data = []
+@@completed_orders = []
+@@completed_buys = []
+@@completed_sells = []
 
 # retrieve currency list
 currencies = get_top_mkts_by_vol 10
@@ -67,25 +67,27 @@ currencies.each do |c|
 end
 
 empty_doc.write '../output/empty_spreadsheet.xls'
-doc = Spreadsheet.open '../output/empty_spreadsheet.xls'
+@@doc = Spreadsheet.open '../output/empty_spreadsheet.xls'
 
 # __ times, every __ minutes, retrieve and calculate relevant data and put it into the spreadsheet
-for i in 0...840
+def run_data_collection(currencies, i)
   # retrieve/calculate all the data from cryptopia
   currencies.each_with_index do |c, j|
     id = currencies[j]['TradePairId']
 
+    current_time = Time.now.strftime('%Y-%m-%d %H:%M:%S')
+
     market_data = get_market_state id
     order_data = get_market_orders id
     new_history_data = get_market_history id
-    history_data += [new_history_data]
+    @@history_data += [new_history_data]
 
-    completed_orders = (history_data[j + (currencies.size * i)] - history_data[j + (currencies.size * (i - 1))]) unless i == 0
+    @@completed_orders = (@@history_data[j + (currencies.size * i)] - @@history_data[j + (currencies.size * (i - 1))]) unless i == 0
 
-    completed_buys = completed_orders.select{|a| a['Type'] == 'Buy'}.size
-    completed_sells = completed_orders.size - completed_buys
+    @@completed_buys = @@completed_orders.select{|a| a['Type'] == 'Buy'}.size
+    @@completed_sells = @@completed_orders.size - @@completed_buys
 
-    total_orders = i == 0 ? 'N/A' : completed_orders.size
+    total_orders = i == 0 ? 'N/A' : @@completed_orders.size
 
     buy_orders = order_data['Buy']
     sell_orders = order_data['Sell']
@@ -96,21 +98,29 @@ for i in 0...840
     sell_sum = sell_orders.inject(0) {|sum, hash| sum + hash['Total']}
 
     buy_sell_ratio_open = (buy_sum / sell_sum).round(5)
-    
-    if i != 0
-      buy_sell_ratio_completed = (completed_buys / completed_sells).round(5)
-    end
+
+
+    buy_sell_ratio_completed = @@completed_sells > 0 ? (@@completed_buys / @@completed_sells).round(5) : 'N/A'
+
 
   # write results to spreadsheet
-    sheet = doc.worksheet j
-    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Buy/Sell Ratio', 'Completed Buy/Sell Ratio' 'Completed Orders', 'Completed Buys', 'Completed Sells' if i == 0
+    sheet = @@doc.worksheet j
+    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Buy/Sell Ratio', 'Completed Buy/Sell Ratio', 'Completed Orders In One Minute', 'Completed Buys', 'Completed Sells', 'Timestamp' if i == 0
     row = sheet.row(i + 1)
-    row.push price, buy_sum, sell_sum, buy_sell_ratio_open, buy_sell_ratio_completed, total_orders, completed_buys, completed_sells
+    # format = Spreadsheet::Format.new :color => :green, :weight => :bold, :size => 18
+    row.push price, buy_sum, sell_sum, buy_sell_ratio_open, buy_sell_ratio_completed, total_orders, @@completed_buys, @@completed_sells, current_time
   end
 
   puts "cycle #{i + 1} complete"
 
-  doc.write '../output/updated_spreadsheet.xls'
-
-  sleep 30
+  @@doc.write '../output/updated_spreadsheet.xls'
 end
+
+for i in 0..60
+  puts Time.now
+  Thread.new {
+    run_data_collection(currencies, i)
+  }
+  sleep 60
+end
+

@@ -99,16 +99,12 @@ def run_data_collection(currencies, i)
 
     buy_sell_ratio_open = (buy_sum / sell_sum).round(5)
 
-
-    buy_sell_ratio_completed = @@completed_sells > 0 ? (@@completed_buys / @@completed_sells).round(5) : 'N/A'
-
-
   # write results to spreadsheet
     sheet = @@doc.worksheet j
-    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Buy/Sell Ratio', 'Completed Buy/Sell Ratio', 'Completed Orders In One Minute', 'Completed Buys', 'Completed Sells', 'Timestamp' if i == 0
+    sheet.row(0).push 'Price', 'Open Buys Total', 'Open Sells Total', 'Open Buy/Sell Ratio', 'Completed Orders In One Minute', 'Completed Buys', 'Completed Sells', 'Timestamp' if i == 0
     row = sheet.row(i + 1)
     # format = Spreadsheet::Format.new :color => :green, :weight => :bold, :size => 18
-    row.push price, buy_sum, sell_sum, buy_sell_ratio_open, buy_sell_ratio_completed, total_orders, @@completed_buys, @@completed_sells, current_time
+    row.push price, buy_sum, sell_sum, buy_sell_ratio_open, total_orders, @@completed_buys, @@completed_sells, current_time
   end
 
   puts "cycle #{i + 1} complete"
@@ -120,6 +116,7 @@ for i in 0..60
   puts Time.now
   Thread.new {
     run_data_collection(currencies, i)
+    Thread.stop
   }
   sleep 60
 end
